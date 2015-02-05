@@ -3,6 +3,8 @@ var CT = require('./modules/country-list');
 var AM = require('./modules/account-manager');
 var EM = require('./modules/email-dispatcher');
 
+var NM = require('./modules/netatmo-manager');
+
 module.exports = function(app) {
 
 // main login page //
@@ -181,7 +183,58 @@ module.exports = function(app) {
 			res.redirect('/print');	
 		});
 	});
+
+
+/* Egna api funktioner */
+
+
+	app.get('/homeAutomation', function(req, res) {
+	    if (req.session.user == null){
+	// if user is not logged-in redirect back to login page //
+	        res.redirect('/');
+	    }   else{
+	    	console.log("HEPP");
+			res.render('homeAutomation', {
+				title : 'Control Panel',
+				countries : CT,
+				udata : req.session.user
+			});
+	    }
+	});
+
+	app.get('/api', function(req, res) {
+	    res.json({ message: 'hooray! welcome to our api!' });   
+	});
+
+	app.get('/api/getAllTemperatures', function(req, res) {
+		NM.getAllTemperatures(function(err, temperatures){
+			res.json(temperatures);
+		});
+	});
+
+
 	
 	app.get('*', function(req, res) { res.render('404', { title: 'Page Not Found'}); });
+
+
+
+	app.get('/getLatestMeasure/?device_id=:device_id', function(request, response) {
+
+		//Säg åt homesharp att hämta ett värde från berörd device. 
+		//Argument från Quartz: deviceId (ett lokalt som Iris översätter, till den specifika tillverkarens)
+			//Iris tar deviceId och översätter det till tillverkarens id.
+			//Sen sätter Iris ihop detta tillsammans med api nyckel till en rest-url som 
+
+	
+	});
+
+
+	//Iris:
+	//Har api-nycklar sparade till alla api-den ska koppla sig till.
+	//Vid inloggning - efterfrågar devicelist från alla sina tillverkare (Är detta möjligt?)
+	//Sparar lista med alla devices.
+	//Skickar alla användarens deviser till quartz
+	//
+
 
 };
